@@ -1,4 +1,4 @@
-from PIL import Image
+from PIL import Image, ImageFilter, ImageEnhance
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPixmap, QImage
 from PyQt5.QtWidgets import *
@@ -69,6 +69,9 @@ windows4 = QLabel("ДЗеркало")
 windows5 = QLabel("Різкість")
 windows6 = QLabel("Ч/Б")
 windows7 = QLabel("Фоточка")
+windows8 = QLabel("Яскравість")
+windows9 = QLabel("Блюр")
+windows10 = QLabel("Контрастність")
 
 mono1 = QPushButton("Папака")
 mono2 = QPushButton("Вліво")
@@ -76,6 +79,11 @@ mono3 = QPushButton("Вправо")
 mono4 = QPushButton("Дзеркало")
 mono5 = QPushButton("Різкість")
 mono6 = QPushButton("Ч/Б")
+mono7 = QPushButton("Яскравість")
+mono8 = QPushButton("Блюр")
+mono9 = QPushButton("Контрастність")
+mono10 = QPushButton("Скинути фільтри")
+
 text = QListWidget()
 
 Mon = QVBoxLayout()
@@ -90,6 +98,10 @@ Non.addWidget(mono3)
 Non.addWidget(mono4)
 Non.addWidget(mono5)
 Non.addWidget(mono6)
+Non.addWidget(mono7)
+Non.addWidget(mono8)
+Non.addWidget(mono9)
+Non.addWidget(mono10)
 Mon1.addLayout(Non)
 mainLine.addLayout(Mon1)
 
@@ -122,6 +134,44 @@ class WorkPhoto:
         self.image = self.image.transpose(Image.ROTATE_270)
         self.showImage()
 
+    def mirror(self):
+        if self.image:
+            self.image = self.image.transpose(Image.FLIP_LEFT_RIGHT)
+            self.showImage()
+
+    def apply_sharpness(self):
+        if self.image:
+            self.image = self.image.filter(ImageFilter.SHARPEN)
+            self.showImage()
+
+    def convert_to_bw(self):
+        if self.image:
+            self.image = self.image.convert("L").convert("RGBA")
+            self.showImage()
+
+    def apply_blur(self):
+        if self.image:
+            self.image = self.image.filter(ImageFilter.BLUR)
+            self.showImage()
+
+    def adjust_brightness(self, factor):
+        if self.image:
+            enhancer = ImageEnhance.Brightness(self.image)
+            self.image = enhancer.enhance(factor)
+            self.showImage()
+
+    def adjust_contrast(self, factor):
+        if self.image:
+            enhancer = ImageEnhance.Contrast(self.image)
+            self.image = enhancer.enhance(factor)
+            self.showImage()
+
+    def reset_filters(self):
+        if self.image:
+            # Reload the original image without any filters
+            self.load()
+            self.showImage()
+
 work_with_photo = WorkPhoto()
 
 def open_floder():
@@ -137,12 +187,16 @@ def showChosenImage():
     work_with_photo.showImage()
 
 text.currentRowChanged.connect(showChosenImage)
+mono1.clicked.connect(open_floder)
 mono2.clicked.connect(work_with_photo.rotate_left)
 mono3.clicked.connect(work_with_photo.rotate_right)
-mono1.clicked.connect(open_floder)
-
-
-
+mono4.clicked.connect(work_with_photo.mirror)
+mono5.clicked.connect(work_with_photo.apply_sharpness)
+mono6.clicked.connect(work_with_photo.convert_to_bw)
+mono7.clicked.connect(lambda: work_with_photo.adjust_brightness(1.5))
+mono8.clicked.connect(work_with_photo.apply_blur)
+mono9.clicked.connect(lambda: work_with_photo.adjust_contrast(1.5))
+mono10.clicked.connect(work_with_photo.reset_filters)
 
 
 
